@@ -68,6 +68,11 @@ android {
         disable 'MissingTranslation'
         disable 'UnsafeOptInUsageError'
     }
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['src/main/jniLibs']
+        }
+    }
 }
 
 dependencies {

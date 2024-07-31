@@ -13,4 +13,16 @@
         app:show_subtitle_button="true"
         app:dtpv_controller="@id/youtube_overlay" />
 
+    <TextView
+        android:id="@+id/gpuUsageTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="GPU Usage"
+        android:textSize="18sp"
+        android:textColor="@android:color/white"
+        android:background="@android:color/black"
+        android:padding="8dp"
+        android:layout_gravity="top|end"
+        android:layout_margin="16dp"/>
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
