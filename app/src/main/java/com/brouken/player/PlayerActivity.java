@@ -253,7 +253,17 @@ public class PlayerActivity extends Activity {
         } else {
             setContentView(R.layout.activity_player);
         }
-        GeniusSDKWrapper geniusSDK = GeniusSDKWrapper.getInstance();
+        FileUtils.copyAssetToInternalStorage(this, "dev_config.json", "dev_config.json");
+        try {
+            // Initialize the GeniusSDK
+            GeniusSDKWrapper sdkWrapper = GeniusSDKWrapper.getInstance(this);
+            Log.d(TAG, "GeniusSDK initialized");
+
+            // Example usage
+            // sdkWrapper.processImage("path/to/image", 1.0f);
+        } catch (Exception e) {
+            Log.e(TAG, "Error initializing GeniusSDK: " + e.getMessage());
+        }
         gpuUsageTextView = findViewById(R.id.gpuUsageTextView);
         // Start a timer to update GPU usage periodically
         timer = new Timer();

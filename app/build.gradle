@@ -73,6 +73,10 @@ android {
             jniLibs.srcDirs = ['src/main/jniLibs']
         }
     }
+    packagingOptions {
+        exclude 'META-INF/AL2.0'
+        exclude 'META-INF/LGPL2.1'
+    }
 }
 
 dependencies {
@@ -108,4 +112,6 @@ dependencies {
     implementation project(path: ':doubletapplayerview')
     implementation project(path: ':android-file-chooser')
     implementation fileTree(dir: "libs", include: ["lib-*.aar"])
+    implementation 'net.java.dev.jna:jna:5.9.0@aar'
+
 }
