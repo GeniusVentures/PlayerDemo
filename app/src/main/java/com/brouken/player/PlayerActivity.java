@@ -229,8 +229,6 @@ public class PlayerActivity extends Activity {
     DisplayManager.DisplayListener displayListener;
     SubtitleFinder subtitleFinder;
     private static final String TAG = "PlayerActivity";
-    private TextView gpuUsageTextView;
-    private Handler handler = new Handler();
     private Timer timer;
 
     Runnable barsHider = () -> {
@@ -254,6 +252,7 @@ public class PlayerActivity extends Activity {
             setContentView(R.layout.activity_player);
         }
         FileUtils.copyAssetToInternalStorage(this, "dev_config.json", "dev_config.json");
+        FileUtils.copyAssetToInternalStorage(this, "QmUDMvGQXbUKMsjmTzjf4ZuMx7tHx6Z4x8YH8RbwrgyGAf", "QmUDMvGQXbUKMsjmTzjf4ZuMx7tHx6Z4x8YH8RbwrgyGAf");
         try {
             // Initialize the GeniusSDK
             GeniusSDKWrapper sdkWrapper = GeniusSDKWrapper.getInstance(this);
@@ -264,18 +263,6 @@ public class PlayerActivity extends Activity {
         } catch (Exception e) {
             Log.e(TAG, "Error initializing GeniusSDK: " + e.getMessage());
         }
-        gpuUsageTextView = findViewById(R.id.gpuUsageTextView);
-        // Start a timer to update GPU usage periodically
-        timer = new Timer();
-        timer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                new RetrieveGPUUsageTask().execute();
-            }
-        }, 0, 1000); // Update every second
-
-
-        gpuUsageTextView = findViewById(R.id.gpuUsageTextView);
 
         if (Build.VERSION.SDK_INT >= 31) {
             Window window = getWindow();
@@ -740,55 +727,6 @@ public class PlayerActivity extends Activity {
         });
     }
 
-    private class RetrieveGPUUsageTask extends AsyncTask<Void, Void, String> {
-        @Override
-        protected String doInBackground(Void... voids) {
-            return getGPUUsage();
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            gpuUsageTextView.setText(result);
-        }
-    }
-    private String getGPUUsage() {
-        StringBuilder gpuUsage = new StringBuilder();
-        try {
-            Process process = Runtime.getRuntime().exec("dumpsys gfxinfo com.brouken.player");
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String line;
-            int totalFrames = 0;
-            int jankyFrames = 0;
-            boolean foundSection = false;
-
-            while ((line = reader.readLine()) != null) {
-                //Log.d(TAG, "LINE: " + line);
-                if (line.contains("Graphics info for pid")) {
-                    foundSection = true;
-                }
-                if (foundSection) {
-                    if (line.contains("Total frames rendered:")) {
-                        totalFrames = Integer.parseInt(line.split(":")[1].trim());
-                    } else if (line.contains("Janky frames:")) {
-                        jankyFrames = Integer.parseInt(line.split(":")[1].trim().split(" ")[0]);
-                    }
-                }
-            }
-            reader.close();
-            process.waitFor();
-
-            //Log.d(TAG, "TOTALFRAMES: " + totalFrames);
-            if (totalFrames > 0) {
-                double jankyPercentage = (jankyFrames / (double) totalFrames) * 100.0;
-                gpuUsage.append(String.format("Est GPU Usage: %.2f%%", jankyPercentage));
-            } else {
-                gpuUsage.append("Est GPU Usage: N/A");
-            }
-        } catch (Exception e) {
-            gpuUsage.append("Error: ").append(e.getMessage());
-        }
-        return gpuUsage.toString();
-    }
     @Override
     public void onStart() {
         super.onStart();

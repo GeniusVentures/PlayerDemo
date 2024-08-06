@@ -1,0 +1,9 @@
+{
+  "model": {
+    "name": "posenet",
+    "file": "model.mnn"
+  },
+  "input": {
+    "image": "data/ballet.data"
+  }
+}

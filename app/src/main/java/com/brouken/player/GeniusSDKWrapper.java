@@ -5,23 +5,31 @@ import com.sun.jna.Native;
 import android.util.Log;
 import android.content.Context;
 
+import java.lang.reflect.Field;
+
 public class GeniusSDKWrapper {
 
     private static final String TAG = "GeniusSDKWrapper";
 
-    // Define the interface for the native library
     private interface GeniusSDK extends Library {
         GeniusSDK INSTANCE = Native.load("GeniusSDK", GeniusSDK.class);
-
         String GeniusSDKInit(String path);
     }
 
-    // Singleton instance for convenience
     private static GeniusSDKWrapper instance;
 
     private GeniusSDKWrapper(Context context) {
-        // Initialize the SDK
         Log.d(TAG, "Running Init");
+
+        // Explicitly load libGLES_mali.so
+        try {
+            System.load("/vendor/lib/egl/libGLES_mali.so");
+            Log.d(TAG, "Successfully loaded libGLES_mali.so");
+        } catch (UnsatisfiedLinkError e) {
+            Log.e(TAG, "Failed to load libGLES_mali.so", e);
+        }
+
+        // Initialize the GeniusSDK
         String internalStoragePath = context.getFilesDir().getAbsolutePath() + "/";
         String initMessage = GeniusSDK.INSTANCE.GeniusSDKInit(internalStoragePath);
         Log.d(TAG, "GeniusSDKInit returned: " + initMessage);
@@ -34,9 +42,7 @@ public class GeniusSDKWrapper {
         return instance;
     }
 
-    // Process image method
     public void processImage(String path, float amount) {
         // Placeholder for the actual implementation
-        // GeniusSDK.INSTANCE.GeniusSDKProcess(path, amount);
     }
 }

@@ -12,10 +12,31 @@ public class FileUtils {
 
     private static final String TAG = "FileUtils";
 
-    public static void copyAssetToInternalStorage(Context context, String assetFileName, String internalFileName) {
-        File internalFile = new File(context.getFilesDir(), internalFileName);
+    public static void copyAssetToInternalStorage(Context context, String assetPath, String internalPath) {
+        try {
+            String[] assets = context.getAssets().list(assetPath);
+            if (assets == null || assets.length == 0) {
+                // It's a file
+                copyFile(context, assetPath, internalPath);
+            } else {
+                // It's a directory
+                File dir = new File(context.getFilesDir(), internalPath);
+                if (!dir.exists()) {
+                    dir.mkdirs();
+                }
+                for (String asset : assets) {
+                    copyAssetToInternalStorage(context, assetPath + "/" + asset, internalPath + "/" + asset);
+                }
+            }
+        } catch (IOException e) {
+            Log.e(TAG, "Failed to copy asset to internal storage", e);
+        }
+    }
 
-        try (InputStream is = context.getAssets().open(assetFileName);
+    private static void copyFile(Context context, String assetFilePath, String internalFilePath) {
+        File internalFile = new File(context.getFilesDir(), internalFilePath);
+
+        try (InputStream is = context.getAssets().open(assetFilePath);
              FileOutputStream fos = new FileOutputStream(internalFile)) {
             byte[] buffer = new byte[4096];
             int length;
